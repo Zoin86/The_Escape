@@ -1,0 +1,16 @@
+##########################
+# Unreal Generated Files #
+##########################
+*/Build/
+*/Binaries/
+*/DerivedDataCache
+*/Intermediate
+*/Saved
+The_Escape/Content/AnimStarterPack/
+The_Escape/Content/StarterContent/
+####################
+#VS Generated Files#
+####################
+*.VC.db
+*.VC.opendb
+The_Escape/.vs/The_Escape/v15/ipch/
