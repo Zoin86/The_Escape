@@ -14,3 +14,5 @@ The_Escape/Content/StarterContent/
 *.VC.db
 *.VC.opendb
 The_Escape/.vs/The_Escape/v15/ipch/
+BuildingEscape/.vs/BuildingEscape/v15/ipch/
+BuildingEscape/Content/StarterContent/
