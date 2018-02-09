@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TriggerVolume.h"
 #include "Components/ActorComponent.h"
 #include "OpenDoor.generated.h"
 
@@ -20,10 +21,21 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	void OpenDoor();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+
+private:
+	UPROPERTY(VisibleAnywhere) // using a marcro to create properties in our component in the editor
+		float OpenAngle = 90.0f;
+
+	UPROPERTY(EditAnywhere)
+		ATriggerVolume* PressurePlate;
+
+	//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
+		AActor* ActorThatOpens; // remember pawn inherits from Actor
 	
 };
