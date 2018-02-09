@@ -22,6 +22,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void OpenDoor();
+	void CloseDoor();
 
 public:	
 	// Called every frame
@@ -29,13 +30,20 @@ public:
 
 
 private:
-	UPROPERTY(VisibleAnywhere) // using a marcro to create properties in our component in the editor
+	UPROPERTY(EditAnywhere) // using a marcro to create properties in our component in the editor
 		float OpenAngle = 90.0f;
 
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* PressurePlate;
 
-	//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
-		AActor* ActorThatOpens; // remember pawn inherits from Actor
+	UPROPERTY(EditAnywhere)
+		float DoorCloseDelay = 1.0f;
+
+		float LastDoorOpenTime;
 	
+
+		//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
+		AActor* ActorThatOpens; // remember pawn inherits from Actor
+		AActor* Owner;
+
 };
