@@ -21,7 +21,7 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Owner = GetOwner(); // find owning actor
+	Me = GetOwner(); // find owning actor
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn(); // we can do this because pawn inherits from AActor - meaning that Pawn IS AActor
 
 }
@@ -29,13 +29,13 @@ void UOpenDoor::BeginPlay()
 void UOpenDoor::OpenDoor()
 {
 	// Set rotation
-	Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
+	Me->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
 }
 
 void UOpenDoor::CloseDoor()
 {
 	// Set rotation back to Closed angle
-	Owner->SetActorRotation(FRotator(0.0f, CloseAngle, 0.0f));
+	Me->SetActorRotation(FRotator(0.0f, CloseAngle, 0.0f));
 }
 
 // Called every frame
@@ -44,7 +44,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Poll the trigger volume every frame
-	if (PressurePlate->IsOverlappingActor(ActorThatOpens)) //This means if the actor that opens, is over lapping, the pressure plate - kind of like reading it in reverse
+	if (PressurePlate->IsOverlappingActor(ActorThatOpens)) //This means that if the pressure plate is being overlapped by ActorThatOpens
 	{
 		// if the ActorThatOpens is in the volume
 		OpenDoor();

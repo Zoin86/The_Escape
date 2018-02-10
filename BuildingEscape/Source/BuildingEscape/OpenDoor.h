@@ -47,6 +47,6 @@ private:
 
 		//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
 		AActor* ActorThatOpens; // remember pawn inherits from Actor
-		AActor* Owner;
+		AActor* Me;
 
 };
