@@ -6,9 +6,10 @@
 */DerivedDataCache
 */Intermediate
 */Saved
-The_Escape/Content/AnimStarterPack/
-The_Escape/Content/StarterContent/HDRI
-The_Escape/Content/StarterContent/Textures
+BuildingEscape/Content/GTFreeMaterials/
+BuildingEscape/Content/AnimStarterPack/
+BuildingEscape/Content/StarterContent/Textures
+BuildingEscape/Content/StarterContent/HDRI
 ####################
 #VS Generated Files#
 ####################
@@ -16,6 +17,4 @@ The_Escape/Content/StarterContent/Textures
 *.VC.opendb
 The_Escape/.vs/The_Escape/v15/ipch/
 BuildingEscape/.vs/BuildingEscape/v15/ipch/
-BuildingEscape/Content/StarterContent/
-BuildingEscape/Content/AnimStarterPack/
-BuildingEscape/Content/GTFreeMaterials/
+
