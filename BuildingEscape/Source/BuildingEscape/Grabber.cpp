@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Grabber.h"
-#include "GameFramework/Actor.h"
 #include "Engine/World.h"
+#include "GameFramework/Actor.h"
 #include "DrawDebugHelpers.h"
 
 #define OUT
@@ -24,8 +24,40 @@ void UGrabber::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting for duty!"));
-	// ...
 	
+	
+	/// Look for attached Physics Handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+
+	auto PawnName = GetOwner()->GetName();
+
+	if (PhysicsHandle)
+	{
+		// Physics Handle Found
+	}
+	else
+	{
+		///Finds the default pawn since its looking through the component tree of the owner.
+		UE_LOG(LogTemp, Error, TEXT("%s is missing Physics Handle Component!"), *PawnName);
+	}
+	
+	/// Look for attached InputComponent (only appears at runtime)
+	if (InputComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s Input Component found!"), *PawnName);
+		/// Bind Input Action
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab); ///Grab needs to be spelled the exact same as I have setup in the editor
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s is missing Input Component!"), *PawnName);
+	}
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!"));
 }
 
 
@@ -63,4 +95,3 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	
 
 }
-
