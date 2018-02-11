@@ -35,4 +35,7 @@ private:
 
 	// Ray-Cast and grab whats in reach
 	void Grab();
+
+	// Called when Grab key is released
+	void LetGo();
 };

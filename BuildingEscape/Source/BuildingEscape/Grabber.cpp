@@ -48,6 +48,7 @@ void UGrabber::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("%s Input Component found!"), *PawnName);
 		/// Bind Input Action
 		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab); ///Grab needs to be spelled the exact same as I have setup in the editor
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::LetGo);
 	}
 	else
 	{
@@ -58,6 +59,11 @@ void UGrabber::BeginPlay()
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!"));
+}
+
+void UGrabber::LetGo()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Released!"));
 }
 
 
