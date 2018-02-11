@@ -29,7 +29,7 @@ public:
 	
 private:
 	// How far ahead of the player we can reach in cm.
-	float Reach = 100.0f;
+	float Reach = 200.0f;
 	bool bUseDebugLine = true;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
@@ -51,5 +51,13 @@ private:
 	void DebugLine(FVector, FVector) const;
 
 	// Return hit for first physics body in reach
-	FHitResult GetFirstPhysicsBodyInReach() const;
+	FHitResult GetFirstPhysicsBodyInReach();
+	
+	// Return current end of reach line
+	FVector GetReachLineEnd();
+
+	// Return current viewpoint location
+	FVector GetReachLineStart();
+
 };
+
