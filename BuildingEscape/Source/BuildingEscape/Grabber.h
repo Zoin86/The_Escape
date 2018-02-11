@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/InputComponent.h" ///Needs to be in the header for intellisense to work in the CCP file
+#include "Components/PrimitiveComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Grabber.generated.h"
 
@@ -29,6 +30,7 @@ public:
 private:
 	// How far ahead of the player we can reach in cm.
 	float Reach = 100.0f;
+	bool bUseDebugLine = true;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 	UInputComponent* InputComponent = nullptr;
@@ -37,5 +39,17 @@ private:
 	void Grab();
 
 	// Called when Grab key is released
-	void LetGo();
+	void Release();
+
+	// Find (assumed) attached Physics Handle Component
+	void FindPhysicsHandleComponent();
+
+	// Setup (assumed) attached input component
+	void SetupInputComponent();
+
+	// Draw Debug Line
+	void DebugLine(FVector, FVector) const;
+
+	// Return hit for first physics body in reach
+	FHitResult GetFirstPhysicsBodyInReach() const;
 };

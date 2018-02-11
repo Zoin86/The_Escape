@@ -22,15 +22,16 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
+	FindPhysicsHandleComponent();
+	SetupInputComponent();
 
-	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting for duty!"));
-	
-	
-	/// Look for attached Physics Handle
+}
+
+/// Look for attached  Physics Handle
+void UGrabber::FindPhysicsHandleComponent()
+{
+	FString PawnName = GetOwner()->GetName();
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-
-	auto PawnName = GetOwner()->GetName();
 
 	if (PhysicsHandle)
 	{
@@ -41,14 +42,20 @@ void UGrabber::BeginPlay()
 		///Finds the default pawn since its looking through the component tree of the owner.
 		UE_LOG(LogTemp, Error, TEXT("%s is missing Physics Handle Component!"), *PawnName);
 	}
-	
-	/// Look for attached InputComponent (only appears at runtime)
+}
+
+/// Look for attached InputComponent (only appears at runtime)
+void UGrabber::SetupInputComponent()
+{
+	FString PawnName = GetOwner()->GetName();
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+
 	if (InputComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s Input Component found!"), *PawnName);
 		/// Bind Input Action
-		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab); ///Grab needs to be spelled the exact same as I have setup in the editor
-		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::LetGo);
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab); ///Grab needs to be spelled the exact same as it has been set in the editor
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
 	else
 	{
@@ -59,11 +66,35 @@ void UGrabber::BeginPlay()
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!"));
+
+	/// LINE TRACE and see if we reach any actors with physics body collision channel set
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+	/// If we hit something then attached a physics handle
+	if (ActorHit)
+	{
+		// TODO attach physics handle
+		PhysicsHandle->GrabComponentAtLocationWithRotation(
+			ComponentToGrab, /// 
+			NAME_None, /// Bone name - Though we aren't actually looking for a bone name, so this is none
+			ComponentToGrab->GetOwner()->GetActorLocation(),
+			ComponentToGrab->GetOwner()->GetActorRotation()
+		);
+	}
+
+			
+
+
 }
 
-void UGrabber::LetGo()
+void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab Released!"));
+	
+	// TODO release physics handle
+	PhysicsHandle->ReleaseComponent();
+
 }
 
 
@@ -72,32 +103,58 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+
+	// if the physics handle is attached 
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		// move object we're holding each frame
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+		
+	// otherwise 
+		// do nothing
+
+}
+
+FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
+{
 	/// Get player view point this tick
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation); /// we defined the OUT macro at the top of this file which is just empty to																														   make sure that we can get the proper values as &out_ will make it into																														   something else than what we need it for!
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation); /// We defined OUT to nothing so we dont get with the memory address of &out_
 
-	// TODO Log for output to test
-	///UE_LOG(LogTemp, Warning, TEXT("Location: %s - Rotation is: %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
-
-	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach; /// need to use vector on rotation to make sure that the line follows the camera around, and not just																									forms to the world vector, but the camera vector of the pawn.
-	DrawDebugLine(GetWorld(), PlayerViewPointLocation, LineTraceEnd, FColor(175, 238, 238), false, 0.0f, 0.0f, 5.0f);
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach; /// need to use vector on rotation to get the pawn vector and not world vector
+	if (bUseDebugLine)
+	{
+		DebugLine(PlayerViewPointLocation, LineTraceEnd);
+	}
 
 	/// Setup query parameters
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner()); /// we're using simple trace so that we use the simple collision model over that of a complex one
-															   /// We also make sure to ignore owner so we dont hit ourselves
-
+																			   /// We also make sure to ignore owner so we dont hit ourselves
 	/// Line-Trace (AKA Ray-casting) out to reach distance
-	FHitResult Hit; /// We use structs inside the paratheses if we havent converted them into a variable!
+	FHitResult Hit;
+	/// Set the physics channel we want to interact with
 	GetWorld()->LineTraceSingleByObjectType(OUT Hit, PlayerViewPointLocation, LineTraceEnd, FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), TraceParameters); 
 	/// We want to use object type - remember to check object types in editor on its collision properties
 
 	/// See what we hit
-	AActor * ActorHit = Hit.GetActor();
+	AActor *ActorHit = Hit.GetActor();
 	if (ActorHit) ///This is a check or it'll return null causing a game crash
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Line Trace Hit: %s"), *(ActorHit->GetName()));
 	}
-	
 
+	return Hit;
+	
+}
+
+void UGrabber::DebugLine(FVector ViewPointLocation, FVector EndLine) const
+{
+	DrawDebugLine(GetWorld(), ViewPointLocation, EndLine, FColor(175, 238, 238), false, 0.0f, 0.0f, 5.0f);
 }
