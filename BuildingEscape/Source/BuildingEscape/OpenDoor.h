@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/TriggerVolume.h"
 #include "Components/ActorComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "OpenDoor.generated.h"
 
 
@@ -43,10 +44,13 @@ private:
 		float DoorCloseDelay = 1.0f;
 
 		float LastDoorOpenTime;
-	
+		
+		UPrimitiveComponent* Mass;
 
 		//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
-		AActor* ActorThatOpens; // remember pawn inherits from Actor
-		AActor* Me;
+		AActor* Owner;
+
+		// Get total mass in kg
+		float GetTotalMassOfActorsOnPlate();
 
 };

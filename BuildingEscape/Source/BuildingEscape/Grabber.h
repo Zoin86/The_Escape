@@ -29,7 +29,7 @@ public:
 	
 private:
 	// How far ahead of the player we can reach in cm.
-	float Reach = 200.0f;
+	float Reach = 100.0f;
 	bool bUseDebugLine = true;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;

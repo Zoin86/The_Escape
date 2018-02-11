@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 
+#define OUT
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
@@ -21,21 +22,20 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Me = GetOwner(); // find owning actor
-	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn(); // we can do this because pawn inherits from AActor - meaning that Pawn IS AActor
+	Owner = GetOwner(); // find owning actor
 
 }
 
 void UOpenDoor::OpenDoor()
 {
 	// Set rotation
-	Me->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
+	Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
 }
 
 void UOpenDoor::CloseDoor()
 {
 	// Set rotation back to Closed angle
-	Me->SetActorRotation(FRotator(0.0f, CloseAngle, 0.0f));
+	Owner->SetActorRotation(FRotator(0.0f, CloseAngle, 0.0f));
 }
 
 // Called every frame
@@ -44,9 +44,8 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Poll the trigger volume every frame
-	if (PressurePlate->IsOverlappingActor(ActorThatOpens)) //This means that if the pressure plate is being overlapped by ActorThatOpens
+	if (GetTotalMassOfActorsOnPlate() > 24.0f) //This means that if the pressure plate is being overlapped by ActorThatOpens
 	{
-		// if the ActorThatOpens is in the volume
 		OpenDoor();
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 	}
@@ -56,4 +55,25 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		CloseDoor();
 	}
+
+}
+
+float UOpenDoor::GetTotalMassOfActorsOnPlate()
+{
+	float TotalMass = 0.0f;
+
+	// Find all overlapping actors
+	TArray<AActor*> OverlappingActors; /// like a list in C#
+	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
+	
+	//auto ComponentMass = Mass->GetMassScale(NAME_None);
+
+	// Iterate through them adding their masses
+	for (const auto* Actor : OverlappingActors)
+	{
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		UE_LOG(LogTemp, Warning, TEXT("Pressure plate holds: %s"), *Actor->GetName());
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Total Mass on Pressure Plate: %fkg"), TotalMass);
+	return TotalMass;
 }
