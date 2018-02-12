@@ -43,6 +43,10 @@ private:
 	UPROPERTY(EditAnywhere)
 		float DoorCloseDelay = 1.0f;
 
+	UPROPERTY(EditAnywhere)
+		float MassToTriggerPressurePlate = 0.0f;
+
+	/// Used to calculate when to close in OpenDoor.ccp
 		float LastDoorOpenTime;
 		
 		UPrimitiveComponent* Mass;
