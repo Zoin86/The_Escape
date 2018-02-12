@@ -39,27 +39,30 @@ public:
 		// When we want to close the door
 		FDoorEvent OnClose; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open Angle") /// Allows us to use this variable in blueprint and edit it from the component in editor.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door Angle") /// Allows us to use this variable in blueprint and edit it from the component in editor.
 		// The angle which the door should open to
-		float OpenAngle = 0.0f;
+		float OpenAngle = 90.0f;
 
-private:
-
-	UPROPERTY(EditAnywhere)
-		ATriggerVolume* PressurePlate = nullptr; /// Important to initialise to nullptr
-
-	UPROPERTY(EditAnywhere) // using a marcro to create properties in our component in the editor
-		float TriggerMass = 0.0f;
+	// Get total mass in kg
+	float GetTotalMassOfActorsOnPlate();
 
 	/// Find (assumed) pressure plate
 	void FindPressurePlate();
-		
+
+private:
+
+	/// Important to initialise to nullptr
+	UPROPERTY(EditAnywhere)
+		ATriggerVolume* PressurePlate = nullptr; 
+
+	UPROPERTY(EditAnywhere)
+		// *This value has to be LOWER than the total amount required!
+		float TriggerMass = 0.0f;
+
 		UPrimitiveComponent* Mass = nullptr;
 
 		//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
 		AActor* Owner = nullptr;
 
-		// Get total mass in kg
-		float GetTotalMassOfActorsOnPlate();
-
+		
 };
