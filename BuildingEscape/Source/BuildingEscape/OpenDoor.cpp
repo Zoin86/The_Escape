@@ -35,14 +35,15 @@ void UOpenDoor::FindPressurePlate()
 	if (PressurePlate == nullptr)
 	{
 		///Finds the default pawn since its looking through the component tree of the owner.
-		UE_LOG(LogTemp, Warning, TEXT("Open Door Component of: %s Has no PRESSURE PLATE attached!"), *ActorName);
+		UE_LOG(LogTemp, Error, TEXT("Open Door Component of: %s Has no PRESSURE PLATE attached!"), *ActorName);
 	}
 }
 
 void UOpenDoor::OpenDoor()
 {
 	// Set rotation
-	Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
+	// Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
+	OnOpenRequest.Broadcast();
 }
 
 void UOpenDoor::CloseDoor()
