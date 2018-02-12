@@ -9,7 +9,8 @@
 #include "Runtime/Core/Public/Delegates/Delegate.h"
 #include "OpenDoor.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
+/// This creates a new class!
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
@@ -24,7 +25,6 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void OpenDoor();
 	void CloseDoor();
 
 public:	
@@ -32,29 +32,27 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(BlueprintAssignable)
-		FOnOpenRequest OnOpenRequest;
+		// When we want to open the door
+		FDoorEvent OnOpen; 
+
+	UPROPERTY(BlueprintAssignable)
+		// When we want to close the door
+		FDoorEvent OnClose; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open Angle") /// Allows us to use this variable in blueprint and edit it from the component in editor.
+		// The angle which the door should open to
+		float OpenAngle = 0.0f;
 
 private:
-	UPROPERTY(EditAnywhere) // using a marcro to create properties in our component in the editor
-		float OpenAngle = 90.0f;
-
-	UPROPERTY(EditAnywhere)
-		float CloseAngle = 0.0f;
 
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* PressurePlate = nullptr; /// Important to initialise to nullptr
 
-	UPROPERTY(EditAnywhere)
-		float DoorCloseDelay = 1.0f;
-
-	UPROPERTY(EditAnywhere)
-		float MassToTriggerPressurePlate = 0.0f;
+	UPROPERTY(EditAnywhere) // using a marcro to create properties in our component in the editor
+		float TriggerMass = 0.0f;
 
 	/// Find (assumed) pressure plate
 	void FindPressurePlate();
-
-	/// Used to calculate when to close in OpenDoor.ccp
-		float LastDoorOpenTime;
 		
 		UPrimitiveComponent* Mass = nullptr;
 

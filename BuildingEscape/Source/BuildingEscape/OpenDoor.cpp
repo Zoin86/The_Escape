@@ -39,17 +39,10 @@ void UOpenDoor::FindPressurePlate()
 	}
 }
 
-void UOpenDoor::OpenDoor()
-{
-	// Set rotation
-	// Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
-	OnOpenRequest.Broadcast();
-}
-
 void UOpenDoor::CloseDoor()
 {
 	// Set rotation back to Closed angle
-	Owner->SetActorRotation(FRotator(0.0f, CloseAngle, 0.0f));
+	Owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 }
 
 // Called every frame
@@ -58,16 +51,13 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Poll the trigger volume every frame
-	if (GetTotalMassOfActorsOnPlate() > MassToTriggerPressurePlate) // Compares the Total mass on actors inside the trigger volume
+	if (GetTotalMassOfActorsOnPlate() > TriggerMass) // Compares the Total mass on actors inside the trigger volume
 	{
-		OpenDoor();
-		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+		OnOpen.Broadcast();
 	}
-
-	// Check if its time to close door
-	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay)
+	else
 	{
-		CloseDoor();
+		OnClose.Broadcast();
 	}
 
 }
@@ -92,5 +82,5 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate()
 		UE_LOG(LogTemp, Warning, TEXT("Total Mass on Pressure Plate: %fkg"), TotalMass);
 	}
 	
-	return TotalMass;
+	return TotalMass; //
 }
