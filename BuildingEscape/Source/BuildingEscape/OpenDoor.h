@@ -38,7 +38,7 @@ private:
 		float CloseAngle = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-		ATriggerVolume* PressurePlate;
+		ATriggerVolume* PressurePlate = nullptr; /// Important to initialise to nullptr
 
 	UPROPERTY(EditAnywhere)
 		float DoorCloseDelay = 1.0f;
@@ -46,13 +46,16 @@ private:
 	UPROPERTY(EditAnywhere)
 		float MassToTriggerPressurePlate = 0.0f;
 
+	/// Find (assumed) pressure plate
+	void FindPressurePlate();
+
 	/// Used to calculate when to close in OpenDoor.ccp
 		float LastDoorOpenTime;
 		
-		UPrimitiveComponent* Mass;
+		UPrimitiveComponent* Mass = nullptr;
 
 		//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
-		AActor* Owner;
+		AActor* Owner = nullptr;
 
 		// Get total mass in kg
 		float GetTotalMassOfActorsOnPlate();

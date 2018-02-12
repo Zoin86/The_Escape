@@ -44,7 +44,6 @@ void UGrabber::SetupInputComponent()
 
 	if (InputComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s Input Component found!"), *PawnName);
 		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab); ///Grab needs to be spelled the exact same as it has been set in the editor
 		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
@@ -65,6 +64,8 @@ void UGrabber::Grab()
 	/// If we hit something then attached a physics handle
 	if (ActorHit)
 	{
+		if (!PhysicsHandle)	{ return; }
+
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
 			ComponentToGrab,
 			NAME_None, /// Bone name - No bones needed
@@ -85,6 +86,8 @@ void UGrabber::Release()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!PhysicsHandle)	{ return; }
 
 	if (PhysicsHandle->GrabbedComponent)
 	{

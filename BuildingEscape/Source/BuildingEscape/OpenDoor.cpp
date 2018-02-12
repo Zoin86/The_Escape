@@ -22,8 +22,21 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FindPressurePlate();
 	Owner = GetOwner(); // find owning actor
 
+}
+
+/// Look for attached  Physics Handle
+void UOpenDoor::FindPressurePlate()
+{
+	FString ActorName = GetOwner()->GetName();
+
+	if (PressurePlate == nullptr)
+	{
+		///Finds the default pawn since its looking through the component tree of the owner.
+		UE_LOG(LogTemp, Warning, TEXT("Open Door Component of: %s Has no PRESSURE PLATE attached!"), *ActorName);
+	}
 }
 
 void UOpenDoor::OpenDoor()
@@ -60,8 +73,10 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 float UOpenDoor::GetTotalMassOfActorsOnPlate()
 {
+
 	float TotalMass = 0.0f;
 
+	if (!PressurePlate)	{ return 0.0f; }
 	// Find all overlapping actors
 	TArray<AActor*> OverlappingActors; /// like a list in C#
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
@@ -71,7 +86,7 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate()
 	// Iterate through them adding their masses
 	for (const auto* Actor : OverlappingActors)
 	{
-		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->CalculateMass(NAME_None);
 		UE_LOG(LogTemp, Warning, TEXT("Pressure plate holds: %s"), *Actor->GetName());
 		UE_LOG(LogTemp, Warning, TEXT("Total Mass on Pressure Plate: %fkg"), TotalMass);
 	}
