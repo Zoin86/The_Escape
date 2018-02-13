@@ -20,9 +20,8 @@ ULightController::ULightController()
 void ULightController::BeginPlay()
 {
 	Super::BeginPlay();
-	GetLightComponent();
-	// ...
-	
+	FindLightComponent();
+	FindAndCreateEndCount();
 }
 
 
@@ -34,12 +33,12 @@ void ULightController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 }
 
-void ULightController::GetLightComponent()
+void ULightController::FindLightComponent()
 {
 	LightComponent = GetOwner()->FindComponentByClass<ULightComponent>();
 	if (!LightComponent)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Light Component: NOT FOUND!"))
+		UE_LOG(LogTemp, Error, TEXT("Light Component: MISSING!"))
 			
 		return;
 	}
@@ -49,15 +48,38 @@ void ULightController::GetLightComponent()
 	}
 }
 
-void ULightController::SetLightColor()
+void ULightController::SetStatueLightColor()
 {
 	OnSetLightColorRequest.Broadcast();
 }
 
-void ULightController::GetPressurePlates()
+void ULightController::FindAndCreateEndCount()
 {
-	auto TotalMass = TriggerDoor->GetTotalMassOfActorsOnPlate();
+	EndCount = PressurePlates.Num();
+	UE_LOG(LogTemp, Warning, TEXT("Pressure Plate Count: %i "), EndCount);
+	return;
 }
 
+// Gets total mass, and puts it into array
+void ULightController::GetTotalMassAndInsertIntoOverLappingMassArray()
+{
+	if (EndCount >= 1)
+	{
+		for (auto& Actor : PressurePlates)// iterate through pressure plates
+		{
+			float TotalMass = 0.0f;
 
-	
+			for (int32 StartCount = 0; StartCount < EndCount; StartCount++)
+			{
+				TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->CalculateMass(NAME_None); /// Get Overlapping Mass
+				PressurePlateOverLappingMass.Insert(float(TotalMass), StartCount); /// add it to PressurePlateOverlappingMass TArray
+			}
+			
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No pressure Plates Found!"));
+	}
+	return;
+}

@@ -43,11 +43,6 @@ public:
 		// The angle which the door should open to
 		float OpenAngle = 90.0f;
 
-	// Get total mass in kg
-	float GetTotalMassOfActorsOnPlate();
-
-	/// Find (assumed) pressure plate
-	void FindPressurePlate();
 
 private:
 
@@ -64,5 +59,9 @@ private:
 		//UPROPERTY(EditAnywhere) // commented out so it doesnt appear in the editor property window - It automatically sets the pawn now due to the CCP BeginPlay method
 		AActor* Owner = nullptr;
 
-		
+		// Get total mass in kg
+		float GetTotalMassOfActorsOnPlate();
+
+		/// Find (assumed) pressure plate
+		void FindPressurePlate();
 };

@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TriggerVolume.h"
 #include "Components/ActorComponent.h"
 #include "Components/LightComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Runtime/Core/Public/Delegates/Delegate.h"
-#include "OpenDoor.h"
 #include "LightController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSetColor);
@@ -33,22 +34,24 @@ public:
 
 private:
 
-
-
-	UOpenDoor * TriggerDoor = nullptr;
-
+	int32 EndCount;
+	
 	ULightComponent * LightComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-		TArray<ATriggerVolume*> PressurePlatesMass;
+		TArray<ATriggerVolume*> PressurePlates;
 
-	void GetLightComponent();
+	UPROPERTY(EditAnywhere)
+		TArray<float> MassTrigger;
 
-	void SetLightColor();
+		TArray<float> PressurePlateOverLappingMass;
 
-	void GetPressurePlates();
+	void FindLightComponent();
 
+	void SetStatueLightColor();
 
-		
-	
+	void GetTotalMassAndInsertIntoOverLappingMassArray();
+
+	void FindAndCreateEndCount();
+
 };
