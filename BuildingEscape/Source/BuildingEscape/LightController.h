@@ -45,7 +45,7 @@ private:
 
 	int32 ArraySpot = 0;
 
-	ATriggerVolume *Actor = nullptr;
+	const ATriggerVolume *Actor = nullptr;
 	
 	ULightComponent * LightComponent = nullptr;
 
@@ -64,6 +64,7 @@ private:
 	void CycleArraySpot();
 	void IsArrayValid();
 
+	bool debug = false;
 	bool CompareMassTriggerWithPressurePlates();
 	bool IsTriggerVolumeOverlapping();
 

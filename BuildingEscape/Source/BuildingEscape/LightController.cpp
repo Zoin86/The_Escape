@@ -31,7 +31,7 @@ void ULightController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsTriggerVolumeOverlapping())
+	/*if (IsTriggerVolumeOverlapping())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("IsTriggerVolumeOverlapping[0]: working!"))
 
@@ -61,11 +61,13 @@ void ULightController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		UE_LOG(LogTemp, Error, TEXT("IsTriggerVolumeOverlapping: NOT WORKING"))
 		
 			return;
-	}
+	}*/
 	
 	//Activate to in case you need to check
 	//IsArrayValid(); 
-
+	
+	debug = CompareMassTriggerWithPressurePlates();
+	UE_LOG(LogTemp, Warning, TEXT("Returns: %i"), debug)
 	CycleArraySpot();
 }
 
@@ -108,7 +110,9 @@ bool ULightController::IsTriggerVolumeOverlapping()
 		return false;
 	}
 
-	TArray<AActor*> OverlappingActors; 
+
+	//TODO Need to move OverlappingActors Array out of this method
+	TArray<AActor*> OverlappingActors;
 	PressurePlates[ArraySpot]->GetOverlappingActors(OUT OverlappingActors);
 
 	auto OverLappingActorCount = OverlappingActors.Num();
@@ -116,7 +120,7 @@ bool ULightController::IsTriggerVolumeOverlapping()
 		
 	if (OverlappingActors.Num() >= 1) 
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Pressure plate %s has %i overlapping! "), PlateName, OverLappingActorCount);
+		UE_LOG(LogTemp, Warning, TEXT("Pressure plate %s has %i overlapping! "), *PlateName, OverLappingActorCount);
 		return true;
 	}
 	else
@@ -133,16 +137,29 @@ bool ULightController::CompareMassTriggerWithPressurePlates()
 	if (ArrayEndCount >= 1)
 	{
 		GetTotalMassAndInsertIntoOverLappingMassArray();
+
 		if (MassTrigger[ArraySpot] >= PressurePlateOverlappingMass[ArraySpot])
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Array Spot Counter: %i "), ArraySpotCount)
 			
 			return true;
 		}
+		else
+		{
+			float MassTriggerSpot = MassTrigger[ArraySpot];
+			UE_LOG(LogTemp, Warning, TEXT("You should not see this!"))
+			UE_LOG(LogTemp, Warning, TEXT("MassTrigger[%i]: %f"), ArraySpot, MassTriggerSpot)
+			UE_LOG(LogTemp, Warning, TEXT("MassTrigger Objects: %i"), MassTrigger.Num())
+			UE_LOG(LogTemp, Warning, TEXT("Pressure Plate Overlap Mass: %f - Objects: %i"), PressurePlateOverlappingMass[ArraySpot], PressurePlateOverlappingMass.Num())
+
+			return false;
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Nothing to Compare!"))
+
+		return false;
 	}
 
 	return false;
@@ -152,14 +169,15 @@ bool ULightController::CompareMassTriggerWithPressurePlates()
 void ULightController::GetTotalMassAndInsertIntoOverLappingMassArray()
 {
 	float TotalMass = 0.0f;
-	//int32 ArraySpot = 0;
 
 	if (ArrayEndCount >= 1)
 	{
 		if (!PressurePlates[ArraySpot]){ UE_LOG(LogTemp, Error, TEXT("Actor Pointing to nullptr"))	return;	}
 
-			TotalMass += PressurePlates[ArraySpot]->FindComponentByClass<UPrimitiveComponent>()->CalculateMass(NAME_None); /// Get Overlapping Mass
-			PressurePlateOverlappingMass.Insert(float(TotalMass), ArraySpot); /// add it to PressurePlateOverlappingMass TArray
+
+		//TODO Need to change PressurePlate Array to Overlapping array after Overlapping array has been moved!
+		TotalMass += PressurePlates[ArraySpot]->FindComponentByClass<UPrimitiveComponent>()->CalculateMass(NAME_None); /// Get Overlapping Mass
+		PressurePlateOverlappingMass.Insert(float(TotalMass), ArraySpot); /// add it to PressurePlateOverlappingMass TArray
 	}
 	else
 	{
@@ -170,9 +188,9 @@ void ULightController::GetTotalMassAndInsertIntoOverLappingMassArray()
 
 void ULightController::CycleArraySpot()
 {
-	if (ArraySpot == 1)
+	if (ArraySpot >= 1)
 	{
-		ArraySpot = 0;
+		ArraySpot = -1;
 	}
 
 	ArraySpot++;
