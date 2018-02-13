@@ -32,20 +32,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FSetColor OnSetLightColorRequest;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Trigger Volumes")
-		bool FirstTriggerVolume = false;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Trigger Volumes")
-		bool SecondTriggerVolume = false;
-		
-
 private:
 
-	int32 ArrayEndCount = 0;
-
-	int32 ArraySpot = 0;
-
-	ATriggerVolume *Actor = nullptr;
+	int32 EndCount;
 	
 	ULightComponent * LightComponent = nullptr;
 
@@ -55,16 +44,14 @@ private:
 	UPROPERTY(EditAnywhere)
 		TArray<float> MassTrigger;
 
-	TArray<float> PressurePlateOverlappingMass;
+		TArray<float> PressurePlateOverLappingMass;
 
 	void FindLightComponent();
-	void SetStatueLightColor();
-	void GetTotalMassAndInsertIntoOverLappingMassArray();
-	void FindAndCreateEndCount();
-	void CycleArraySpot();
-	void IsArrayValid();
 
-	bool CompareMassTriggerWithPressurePlates();
-	bool IsTriggerVolumeOverlapping();
+	void SetStatueLightColor();
+
+	void GetTotalMassAndInsertIntoOverLappingMassArray();
+
+	void FindAndCreateEndCount();
 
 };
