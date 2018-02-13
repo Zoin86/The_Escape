@@ -37,20 +37,23 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Trigger Volumes")
 		bool SecondTriggerVolume = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Volumes ReadOnly")
+		TArray<ATriggerVolume*> PressurePlates;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Array Spot")
+		int32 ArraySpot = 0;
 		
 
 private:
 
 	int32 ArrayEndCount = 0;
 
-	int32 ArraySpot = 0;
-
 	const ATriggerVolume *Actor = nullptr;
 	
 	ULightComponent * LightComponent = nullptr;
 
-	UPROPERTY(EditAnywhere)
-		TArray<ATriggerVolume*> PressurePlates;
+
 
 	UPROPERTY(EditAnywhere)
 		TArray<float> MassTrigger;
