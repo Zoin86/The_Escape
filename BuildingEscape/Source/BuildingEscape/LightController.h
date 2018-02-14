@@ -30,37 +30,43 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(BlueprintAssignable)
-		FSetColor OnSetLightColorRequest;
+		FSetColor OnPass;
+
+	UPROPERTY(BlueprintAssignable)
+		FSetColor OnDeny;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Trigger Volumes")
 		bool FirstTriggerVolume = false;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Trigger Volumes")
 		bool SecondTriggerVolume = false;
-
+	//A pressure pads ARRAY number has to be the same as the Mass to Trigger
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Volumes")
 		TArray<ATriggerVolume*> PressurePlates;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Array Spot")
 		int32 ArrayNumber = 0;
-		
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LightObject")
+		AActor* LightObject = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, Category = "LightObject")
+		ULightComponent * LightComponent = nullptr;
 
 private:
 
 	int32 ArrayCount = 0;
-	
-	ULightComponent * LightComponent = nullptr;
 
-	UPROPERTY(EditAnywhere)
-		TArray<float> MassTrigger;
+	UPROPERTY(EditAnywhere, Category = "Trigger Volumes")
+		//Total amount of mass required to trigger a pressure pad
+		TArray<float> MassToTrigger;
 
 	void FindLightComponent();
-	void SetStatueLightColor();
 	void FindAndCreateEndCount();
 	void CycleArraySpot();
-	void IsArrayValid();
+	void FindLightObject();
 
-	float GetTotalMass();
+	float GetTotalOverlappedMass();
 	
 	bool CompareMassTriggerWithPressurePlates();
 	bool IsTriggerVolumeOverlapping();

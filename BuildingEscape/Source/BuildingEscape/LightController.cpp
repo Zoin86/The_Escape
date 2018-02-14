@@ -20,8 +20,9 @@ ULightController::ULightController()
 void ULightController::BeginPlay()
 {
 	Super::BeginPlay();
-	FindLightComponent();
+	FindLightObject();
 	FindAndCreateEndCount();
+	
 }
 
 
@@ -34,29 +35,46 @@ void ULightController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		if (CompareMassTriggerWithPressurePlates())
 		{
-			SetStatueLightColor();
+			OnPass.Broadcast();
+		}
+		else
+		{
+			OnDeny.Broadcast();
 		}
 	}
-
-	//Activate to in case you need to check
-	//IsArrayValid(); 
+	else
+	{
+		OnDeny.Broadcast();
+	}
 	CycleArraySpot();
+}
+
+void ULightController::FindLightObject()
+{
+	//make sure not to use !LightObject - will cause a crash - instead do below
+	if (LightObject == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: No light Object Connected!"), *GetOwner()->GetName())
+		return;
+	}
+	else
+	{
+		FindLightComponent();
+		//Make sure NOT to use *LightObject->GetOwner->GetName() - Will cause game crash
+		UE_LOG(LogTemp, Warning, TEXT("%s: and Light Object Connected: %s"), *GetOwner()->GetName(), *LightObject->GetName())
+	}
+
 }
 
 void ULightController::FindLightComponent()
 {
-	LightComponent = GetOwner()->FindComponentByClass<ULightComponent>();
-	if (!LightComponent)
+	LightComponent = LightObject->FindComponentByClass<ULightComponent>();
+
+	if (LightComponent == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Light Component: MISSING!"))
-			
+		UE_LOG(LogTemp, Error, TEXT("%s is MISSING a Light Component!"), *LightObject->GetName())	
 		return;
 	}
-}
-
-void ULightController::SetStatueLightColor()
-{
-	OnSetLightColorRequest.Broadcast();
 }
 
 void ULightController::FindAndCreateEndCount()
@@ -64,24 +82,19 @@ void ULightController::FindAndCreateEndCount()
 	ArrayCount = PressurePlates.Num();
 	if (PressurePlates.Num() < 1)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Pressure Plates attached to Light Statue! "))
-		
+		UE_LOG(LogTemp, Warning, TEXT("No Pressure Plates attached to %s "), *GetOwner()->GetName())		
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Pressure Plate Count: %i "), ArrayCount)
-	
-	return;
+	UE_LOG(LogTemp, Warning, TEXT("%s: Pressure Plate Count: %i "), *GetOwner()->GetName(), ArrayCount)
 }
 
 // Returns true if Trigger Volume is overlapping with Actor
 bool ULightController::IsTriggerVolumeOverlapping()
 {
-	if (PressurePlates.Num() < 1)
-	{
-		return false;
-	}
-
+	if(PressurePlates.Num() < 1) {return false;} /// Don't use !PressurePaltes as it is an array - will cause game crash - check against its amount of objects instead!
+	if(PressurePlates[ArrayNumber] == nullptr){	return false; }
+	
 	TArray<AActor*> OverlappingActors;
 	PressurePlates[ArrayNumber]->GetOverlappingActors(OUT OverlappingActors);
 
@@ -96,16 +109,17 @@ bool ULightController::IsTriggerVolumeOverlapping()
 	{
 		return false;
 	}
-	//return false;
 }
 
 bool ULightController::CompareMassTriggerWithPressurePlates()
 {
+	if (MassToTrigger.Num() < 1){ return false; }
+
 	int32 ArraySpotCount = ArrayNumber + 1;
 
 	if (ArrayCount >= 1)
 	{
-		if (GetTotalMass() >= MassTrigger[ArrayNumber])
+		if (GetTotalOverlappedMass() >= MassToTrigger[ArrayNumber])
 		{	
 			return true;
 		}
@@ -117,7 +131,7 @@ bool ULightController::CompareMassTriggerWithPressurePlates()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Nothing to Compare!"))
+		UE_LOG(LogTemp, Warning, TEXT("%s: Got nothing to Compare!"), *GetOwner()->GetName())
 			
 		return false;
 	}
@@ -125,33 +139,28 @@ bool ULightController::CompareMassTriggerWithPressurePlates()
 }
 
 // Gets total mass, and puts it into array
-float ULightController::GetTotalMass()
+float ULightController::GetTotalOverlappedMass()
 {
 	float TotalMass = 0.0f;
 
 	if (ArrayCount >= 1)
 	{
-		if (!PressurePlates[ArrayNumber]){ UE_LOG(LogTemp, Error, TEXT("Actor Pointing to nullptr"))	return TotalMass;	}
-
-		TArray<float> PressurePlateOverlappingMass;
+		TArray<float> PressurePlateOverlappingMass; /// Don't put in header file as this will never be reset properly, instead make it a local scoped array
 
 		TArray<AActor*> OverlappingActors;
 		PressurePlates[ArrayNumber]->GetOverlappingActors(OUT OverlappingActors);
-		UE_LOG(LogTemp, Error, TEXT("Overlapping actor amount: %i"), OverlappingActors.Num())
+		UE_LOG(LogTemp, Error, TEXT("Trigger Volume: %s - Overlapping actor amount: %i"), *PressurePlates[ArrayNumber]->GetName(), OverlappingActors.Num())
 
 		for (const auto* Actor : OverlappingActors)
 		{
 			TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->CalculateMass(NAME_None); /// Get Overlapping Mass
 			PressurePlateOverlappingMass.Add(TotalMass); /// add it to PressurePlateOverlappingMass TArray
 		}
-		UE_LOG(LogTemp, Error, TEXT("PressurePlateMass Objects: %i"), PressurePlateOverlappingMass.Num())
+		UE_LOG(LogTemp, Error, TEXT("Trigger Volume: %s - PressurePlateMass Objects: %i"), *PressurePlates[ArrayNumber]->GetName(), PressurePlateOverlappingMass.Num())
 		
 		return TotalMass;
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("No pressure Plates Found!"))
-	}
+
 	return TotalMass;
 }
 
@@ -162,27 +171,4 @@ void ULightController::CycleArraySpot()
 		ArrayNumber = -1;
 	}
 	ArrayNumber++;
-	UE_LOG(LogTemp, Error, TEXT("Array Number: %i"), ArrayNumber)
-
-}
-
-void ULightController::IsArrayValid()
-{
-	if (bool IsArrayValid0 = PressurePlates.IsValidIndex(ArrayNumber))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Array: PressurePlates is valid"))
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Array: PressurePlates is NOT valid"))
-	}
-
-	if (bool IsArrayValid1 = MassTrigger.IsValidIndex(ArrayNumber))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Array: MassTrigger is valid"))
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Array: MassTrigger is NOT valid"))
-	}
 }
