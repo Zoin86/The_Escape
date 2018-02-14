@@ -42,18 +42,14 @@ public:
 		TArray<ATriggerVolume*> PressurePlates;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Array Spot")
-		int32 ArraySpot = 0;
+		int32 ArrayNumber = 0;
 		
 
 private:
 
-	int32 ArrayEndCount = 0;
-
-	const ATriggerVolume *Actor = nullptr;
+	int32 ArrayCount = 0;
 	
 	ULightComponent * LightComponent = nullptr;
-
-
 
 	UPROPERTY(EditAnywhere)
 		TArray<float> MassTrigger;
@@ -67,7 +63,6 @@ private:
 	void CycleArraySpot();
 	void IsArrayValid();
 
-	bool debug = false;
 	bool CompareMassTriggerWithPressurePlates();
 	bool IsTriggerVolumeOverlapping();
 
