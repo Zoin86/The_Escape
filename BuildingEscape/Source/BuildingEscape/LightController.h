@@ -54,15 +54,14 @@ private:
 	UPROPERTY(EditAnywhere)
 		TArray<float> MassTrigger;
 
-	TArray<float> PressurePlateOverlappingMass;
-
 	void FindLightComponent();
 	void SetStatueLightColor();
-	void GetTotalMassAndInsertIntoOverLappingMassArray();
 	void FindAndCreateEndCount();
 	void CycleArraySpot();
 	void IsArrayValid();
 
+	float GetTotalMass();
+	
 	bool CompareMassTriggerWithPressurePlates();
 	bool IsTriggerVolumeOverlapping();
 
