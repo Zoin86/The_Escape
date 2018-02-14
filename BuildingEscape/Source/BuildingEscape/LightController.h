@@ -38,7 +38,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Trigger Volumes")
 		bool SecondTriggerVolume = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Volumes ReadOnly")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Volumes")
 		TArray<ATriggerVolume*> PressurePlates;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Array Spot")
